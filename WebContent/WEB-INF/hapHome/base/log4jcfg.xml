@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- =================================================================================== -->
+	<!-- Console ... -->
+	<!-- =================================================================================== -->
+	<appender name="Console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="[%d{MM/dd HH:mm:ss}]%p#%c{1}.%M(%L)#%m%n" />
+		</layout>
+	</appender>
+
+	<!-- =================================================================================== -->
+	<!-- for DailyRolling -->
+	<!-- =================================================================================== -->
+	<appender name="DailyRolling" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="D:/workhome/server/apache-tomcat-6.0.44/logs/g3_bs_sp4.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="[%d{yyyy/MM/dd HH:mm:ss:SSS z}]^%p^%c{1}^(%F.%M:%L)^%m%n" />
+		</layout>
+	</appender>
+
+	<category name="com.ufida.hap">
+		<priority value="warn" />
+	</category>
+
+    <category name="org.springframework">
+        <priority value="warn" />  <!-- 是否显示SQL语句参数设置为debug  NAME设置为：org.springframework.jdbc -->
+    </category>
+	
+    <!--日志记录等级 error warn info debug  -->
+    
+	
+	<category name="org.hibernate">
+		<priority value="warn" />
+	</category>
+
+
+	<root>
+		<priority value="warn" />
+		<appender-ref ref="Console" />
+		<!-- <appender-ref ref="DailyRolling" /> -->
+	</root>
+</log4j:configuration>

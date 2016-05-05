@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>java:comp/env/jdbc/g3DataSource</value>
+		</property>
+	</bean>
+ 
+	<!-- 该 BeanPostProcessor 将自动起作用，对标注 @Autowired 的 Bean 进行自动注入 -->
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
+	<bean id="sessionFactory" class="com.ufida.hap.hibernate.AnnotationSessionFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>  <!-- 是否记录SQL语句 -->
+				<prop key="hibernate.use_sql_comments">false</prop>
+				<prop key="hibernate.hbm2ddl.auto">none</prop>
+				<prop key="hibernate.format_sql">true</prop>  <!-- 是否格式化SQL语句 -->
+				<prop key="hibernate.connection.release_mode">auto</prop>
+				<prop key="hibernate.autoReconnect">true</prop>
+				<prop key="hibernate.transaction.auto_close_session">false</prop>
+			</props>
+		</property>
+
+		<!-- Entity files. -->
+		<property name="annotatedClassesLocations">
+			<list>
+				<value>com.yonyou.proxy.domain</value>
+			</list>
+		</property>
+
+        <!-- <property name="mappingResources"> 
+		    <list> mappingLocations
+		        <value>com/ufida/g3/domain/hbm/xml/Po*.hbm.xml</value>        
+		     </list> 
+		</property>  -->
+        
+		<property name="mappingPathMatching">
+			<list>
+				<value>classpath*:/com/yonyou/**/hbm/xml/*.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="com.ufida.hap.hibernate.HapHibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="supportBeanId" value="hibernateDaoSupport"></property>
+	</bean>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="save*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="delete*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="update*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="execute*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="select*" propagation="REQUIRED" read-only="true"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="trans*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="action*" propagation="REQUIRED"
+				rollback-for="com.ufida.hap.core.exception.AppException" />
+			<tx:method name="newTrans*" propagation="REQUIRES_NEW"
+				rollback-for="com.ufida.hap.core.exception.AppException" />			
+			<tx:method name="get*" propagation="REQUIRED" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut expression="execution(* com.yonyou.proxy.services..*.*(..))"
+			id="hisServiceMethods" />
+
+		<!-- HIS -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="hisServiceMethods" />
+
+	</aop:config>
+
+	
+	<bean id="hibernateDaoSupport" class="com.ufida.hap.hibernate.HibernateDaoSupportImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	
+	<bean id="abstractHibernateRepository" class="com.ufida.hap.hibernate.AbstractHibernateRepository"
+		abstract="true">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+
+</beans>
