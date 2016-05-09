@@ -15,10 +15,11 @@ public interface C {
 	final int FAIL_CODE9= -9; // -9 ≥ı ºªØ÷ß∏∂±¶ ß∞‹
 	
 	
-	static String CODE_NODE_XPATH = "//resultcode";
+	static String CODE_NODE_XPATH = "//code";
 	static String ROOT_NODE = "response";
-	static String CODE_NODE = "resultcode";
-	static String MSG_NODE = "resultmessage";
+	static String CODE_NODE = "code";
+	static String TRADE_STATUS = "tradestatus";
+	static String MSG_NODE = "message";
 	
 	static final String RESULT_NODE = "result";
 	
