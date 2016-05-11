@@ -2,15 +2,8 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	id="WebApp_ID" version="2.5">
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
-		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>default.html</welcome-file>
-		<welcome-file>default.htm</welcome-file>
-		<welcome-file>default.jsp</welcome-file>
-	</welcome-file-list>
+	id="WebApp_ID" version="2.4">
+	
 	<display-name>AlipayProxy</display-name>
 
 	<context-param>
@@ -22,12 +15,9 @@
 		<param-value>/WEB-INF/hapHome</param-value>
 	</context-param>
 	<context-param>
-		<param-name>log4jConfigLocation</param-name>
-		<param-value>/WEB-INF/hapHome/base/log4jcfg.xml</param-value>
-	</context-param>
-	<context-param>
 		<param-name>loaderLocations</param-name>
 		<param-value>classpath*:com/ufida/hap/**/Module*.class</param-value>
+		<!-- <param-value>classpath*:com/ufida/hap/**/Module*;classpath*:net/pri/j9/**/Module*</param-value> -->
 	</context-param>
 	<context-param>
 		<param-name>weblogic.httpd.inputCharset./*</param-name>
@@ -37,23 +27,55 @@
 		<filter-name>EncodingFilter</filter-name>
 		<filter-class>com.ufida.hap.web.filter.EncodingFilter</filter-class>
 	</filter>
+	<filter>
+		<filter-name>SSOClient</filter-name>
+		<filter-class>com.ufida.hapi.sso.agent.SingleSignOnClient</filter-class>
+	</filter>	
+	
+	<filter-mapping>
+		<filter-name>EncodingFilter</filter-name>
+		<url-pattern>*.do</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>EncodingFilter</filter-name>
+		<url-pattern>/json/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>EncodingFilter</filter-name>
+		<url-pattern>/services/*</url-pattern>
+	</filter-mapping>
+	
+	
+	<filter-mapping>
+		<filter-name>EncodingFilter</filter-name>
+		<url-pattern>/ImageSource</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>SSOClient</filter-name>
+		<url-pattern>*.do</url-pattern>
+	</filter-mapping>
 	<listener>
-		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+		<listener-class>com.ufida.hap.web.listener.HapWebListener</listener-class>
 	</listener>
 	
-
-
 	<servlet>
-		<servlet-name>CXFServlet</servlet-name>
-		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
+		<servlet-name>json</servlet-name>
+		<servlet-class>com.ufida.hap.web.servlet.JsonGatewayServlet</servlet-class>
 	</servlet>
-
+	<servlet>
+		<servlet-name>cxf</servlet-name>
+		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
 	<servlet-mapping>
-		<servlet-name>CXFServlet</servlet-name>
+		<servlet-name>json</servlet-name>
+		<url-pattern>/json/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>cxf</servlet-name>
 		<url-pattern>/services/*</url-pattern>
 	</servlet-mapping>
+	<session-config>
+		<session-timeout>600</session-timeout>
+	</session-config>
 </web-app>

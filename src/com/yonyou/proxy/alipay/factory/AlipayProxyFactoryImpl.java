@@ -3,6 +3,7 @@ package com.yonyou.proxy.alipay.factory;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ufida.hap.context.util.HapSpringContextUtils;
 import com.yonyou.proxy.alipay.trade.FyAlipayPay;
 import com.yonyou.proxy.alipay.trade.IYonyouPay;
 import com.yonyou.proxy.alipay.trade.NsAlipayPay;
@@ -10,6 +11,8 @@ import com.yonyou.proxy.alipay.trade.SkAlipayPay;
 import com.yonyou.proxy.alipay.trade.XlAlipayPay;
 import com.yonyou.proxy.alipay.util.C;
 import com.yonyou.proxy.alipay.util.FunctionRet;
+import com.yonyou.proxy.alipay.util.ParamsUtil;
+import com.yonyou.proxy.service.DbAlipayIntf;
 
 public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 
@@ -27,20 +30,22 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 
 	private IYonyouPay getPayObject(Integer indx) {
 		IYonyouPay p = null;
+		DbAlipayIntf dbintf = HapSpringContextUtils.getBean( DbAlipayIntf.class);
 		switch (indx) {
 		case 1:
-			p = new NsAlipayPay();
+			p = new NsAlipayPay(dbintf);
 			break;
 		case 2:
-			p = new SkAlipayPay();
+			p = new SkAlipayPay(dbintf);
 			break;
 		case 3:
-			p = new XlAlipayPay();
+			p = new XlAlipayPay(dbintf);
 			break;
 		case 4:
-			p= new FyAlipayPay();
+			p= new FyAlipayPay(dbintf);
 			break;
 		}
+		
 		return p;
 	}
 
@@ -64,7 +69,8 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 	}
 
 	public String trade_pay(String param) {
-		String sqbm = "";
+		Map<String,Object> m = ParamsUtil.toMap(param);
+		String sqbm= m.get("sqbm").toString();
 		IYonyouPay pay = getPayImplement(sqbm);
 		if (pay != null) {
 			return pay.trade_pay(param);
@@ -75,7 +81,8 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 	}
 
 	public String trade_query(String param) {
-		String sqbm = "";
+		Map<String,Object> m = ParamsUtil.toMap(param);
+		String sqbm= m.get("sqbm").toString();
 		IYonyouPay pay = getPayImplement(sqbm);
 		if (pay != null) {
 			return pay.trade_query(param);
@@ -86,7 +93,8 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 	}
 
 	public String trade_refund(String param) {
-		String sqbm = "";
+		Map<String,Object> m = ParamsUtil.toMap(param);
+		String sqbm= m.get("sqbm").toString();
 		IYonyouPay pay = getPayImplement(sqbm);
 		if (pay != null) {
 			return pay.trade_refund(param);

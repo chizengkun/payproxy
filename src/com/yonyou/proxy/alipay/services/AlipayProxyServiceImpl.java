@@ -22,17 +22,17 @@ public class AlipayProxyServiceImpl implements AlipayProxyService {
 
 
 	public String trade_pay(String param) {
-		return null;
+		return proxyFactory.trade_pay(param);
 	}
 
 
 	public String trade_query(String param) {
-		return null;
+		return proxyFactory.trade_query(param);
 	}
 
 
 	public String trade_refund(String param) {
-		return null;
+		return proxyFactory.trade_refund(param);
 	}
 
 

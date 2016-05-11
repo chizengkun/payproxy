@@ -55,11 +55,8 @@ public abstract class AlipayBase implements IYonyouPay {
 
 	private DbAlipayIntf dbAlipayIntf;
 
-	public DbAlipayIntf getDbAlipayIntf() {
-		return dbAlipayIntf;
-	}
-
-	public void setDbAlipayIntf(DbAlipayIntf dbAlipayIntf) {
+	public AlipayBase(DbAlipayIntf dbAlipayIntf) {
+		this();
 		this.dbAlipayIntf = dbAlipayIntf;
 	}
 
@@ -104,15 +101,10 @@ public abstract class AlipayBase implements IYonyouPay {
 
 		String appAuthToken = "";
 
-		AlipayHeartbeatSynContentBuilder builder = new AlipayHeartbeatSynContentBuilder()
-				.setProduct(Product.FP)
-				.setType(Type.CR)
-				.setEquipmentId("cr1000001")
-				.setEquipmentStatus(EquipStatus.NORMAL)
-				.setTime(Utils.toDate(new Date()))
-				.setMac("0a:00:27:00:00:00")
-				.setNetworkType("LAN")
-				.setProviderId( getProviderId()) // 设置系统商pid
+		AlipayHeartbeatSynContentBuilder builder = new AlipayHeartbeatSynContentBuilder().setProduct(Product.FP)
+				.setType(Type.CR).setEquipmentId("cr1000001").setEquipmentStatus(EquipStatus.NORMAL)
+				.setTime(Utils.toDate(new Date())).setMac("0a:00:27:00:00:00").setNetworkType("LAN")
+				.setProviderId(getProviderId()) // 设置系统商pid
 				.setSysTradeInfoList(sysTradeInfoList) // 系统商同步trade_info信息
 				// .setExceptionInfoList(exceptionInfoList) // 填写异常信息，如果有的话
 				.setExtendInfo(extendInfo) // 填写扩展信息，如果有的话
@@ -123,7 +115,7 @@ public abstract class AlipayBase implements IYonyouPay {
 	}
 
 	protected void dumpResponse(AlipayResponse response) {
-		if (response != null) {			
+		if (response != null) {
 			log.info(String.format("code:%s, msg:%s", response.getCode(), response.getMsg()));
 			if (StringUtils.isNotEmpty(response.getSubCode())) {
 				log.info(String.format("subCode:%s, subMsg:%s", response.getSubCode(), response.getSubMsg()));
@@ -132,25 +124,25 @@ public abstract class AlipayBase implements IYonyouPay {
 		}
 	}
 
-	private String do_tray_pay( String params) {
+	private String do_tray_pay(String params) {
 
 		Map<String, Object> inputs = ParamsUtil.toMap(params);
 		Long t1 = System.currentTimeMillis();
-		Long sfid = ConvertUtils.toLong(inputs.get("SFID"));
-		String sqbm = ConvertUtils.toString(inputs.get("SQBM"));
+		Long sfid = ConvertUtils.toLong(inputs.get("sfid"));
+		String sqbm = ConvertUtils.toString(inputs.get("sqbm"));
 		// (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
 		// 需保证商户系统端不能重复，建议通过数据库sequence生成，
 		String outTradeNo = String.format("alins_%s_%d_%d_%d", sqbm, sfid, t1, (long) (Math.random() * 100000L));
-		log.debug( outTradeNo);
+		log.debug(outTradeNo);
 		// (必填) 订单标题，粗略描述用户的支付目的。如“喜士多（浦东店）消费”
 		String subject = "条码支付-诊疗";
 
 		// (必填) 订单总金额，单位为元，不能超过1亿元
 		// 如果同时传入了【打折金额】,【不可打折金额】,【订单总金额】三者,则必须满足如下条件:【订单总金额】=【打折金额】+【不可打折金额】
-		String totalAmount = ConvertUtils.toString(inputs.get("AMOUNT"));
+		String totalAmount = ConvertUtils.toString(inputs.get("amount"));
 
 		// (必填) 付款条码，用户支付宝钱包手机app点击“付款”产生的付款条码
-		String authCode = ConvertUtils.toString(inputs.get("ALIPAYKEY"));
+		String authCode = ConvertUtils.toString(inputs.get("alipaykey"));
 
 		// (不推荐使用) 订单可打折金额，可以配合商家平台配置折扣活动，如果订单部分商品参与打折，可以将部分商品总价填写至此字段，默认全部商品可打折
 		// 如果该值未传入,但传入了【订单总金额】,【不可打折金额】 则该值默认为【订单总金额】- 【不可打折金额】
@@ -158,8 +150,8 @@ public abstract class AlipayBase implements IYonyouPay {
 
 		// (可选) 订单不可打折金额，可以配合商家平台配置折扣活动，如果酒水不参与打折，则将对应金额填写至此字段
 		// 如果该值未传入,但传入了【订单总金额】,【打折金额】,则该值默认为【订单总金额】-【打折金额】
-		String undiscountableAmount = ConvertUtils.toString(inputs.get("DISCOUNTABLE"), "0.0");
-		
+		String undiscountableAmount = ConvertUtils.toString(inputs.get("discountable"), "0.0");
+
 		// 卖家支付宝账号ID，用于支持一个签约账号下支持打款到不同的收款账号，(打款到sellerId对应的支付宝账号)
 		// 如果该字段为空，则默认为与支付宝签约的商户的PID，也就是appid对应的PID
 		String sellerId = "";
@@ -168,10 +160,10 @@ public abstract class AlipayBase implements IYonyouPay {
 		String body = String.format("诊疗费用支付宝共需支付%s元", totalAmount);
 
 		// 商户操作员编号，添加此参数可以为商户操作员做销售统计
-		String operatorId = ConvertUtils.toString(inputs.get("USERID"));
+		String operatorId = ConvertUtils.toString(inputs.get("userid"));
 
 		// (必填) 商户门店编号，通过门店号和商家后台可以配置精准到门店的折扣信息，详询支付宝技术支持
-		String storeId = ConvertUtils.toString(inputs.get("STOREID"));
+		String storeId = ConvertUtils.toString(inputs.get("storeid"));
 
 		// 业务扩展参数，目前可添加由支付宝分配的系统商编号(通过setSysServiceProviderId方法)，详情请咨询支付宝技术支持
 		String providerId = getProviderId();
@@ -184,137 +176,143 @@ public abstract class AlipayBase implements IYonyouPay {
 		// 商品明细列表，需填写购买商品详细信息，
 		List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
 		// 创建一个商品信息，参数含义分别为商品id（使用国标）、名称、单价（单位为分）、数量，如果需要添加商品类别，详见GoodsDetail
-		GoodsDetail goods1 = GoodsDetail.newInstance("clinic_id001", "诊疗费用", ConvertUtils.toLong(totalAmount) * 100, 1);
+		Double price = ConvertUtils.toDouble(totalAmount) * 100;
+		GoodsDetail goods1 = GoodsDetail.newInstance("clinic_id001", "诊疗费用", price.longValue(), 1);
 		// 创建好一个商品后添加至商品明细列表
 		goodsDetailList.add(goods1);
 
 		// 创建请求builder，设置请求参数
-		AlipayTradePayContentBuilder builder = new AlipayTradePayContentBuilder()
-				.setOutTradeNo(outTradeNo)
-				.setSubject(subject)
-				.setAuthCode(authCode)
-				.setTotalAmount(totalAmount)
-				.setStoreId(storeId)
-				.setUndiscountableAmount(undiscountableAmount)
-				.setBody(body)
-				.setOperatorId(operatorId)
-				.setExtendParams(extendParams)
-				.setSellerId(sellerId)
-				.setGoodsDetailList(goodsDetailList)
+		AlipayTradePayContentBuilder builder = new AlipayTradePayContentBuilder().setOutTradeNo(outTradeNo)
+				.setSubject(subject).setAuthCode(authCode).setTotalAmount(totalAmount).setStoreId(storeId)
+				.setUndiscountableAmount(undiscountableAmount).setBody(body).setOperatorId(operatorId)
+				.setExtendParams(extendParams).setSellerId(sellerId).setGoodsDetailList(goodsDetailList)
 				.setTimeExpress(timeExpress);
 
-		// 调用tradePay方法获取当面付应答
-		AlipayF2FPayResult result = tradeWithHBService.tradePay(builder);
-		Long t2 = System.currentTimeMillis();
-		
-		log.info("订单系统中唯一订单号"+ outTradeNo);
-		log.info("订单金额"+ totalAmount);
-		log.info("商户号"+storeId);
-		dbAlipayIntf.saveTradePay(sfid, sqbm, params, outTradeNo,totalAmount, storeId,
+		try {
+			// 调用tradePay方法获取当面付应答
+			AlipayF2FPayResult result = tradeWithHBService.tradePay(builder);
+			Long t2 = System.currentTimeMillis();
+
+			log.info("订单系统中唯一订单号" + outTradeNo);
+			log.info("订单金额" + totalAmount);
+			log.info("商户号" + storeId);
+			dbAlipayIntf.saveTradePay(sfid, sqbm, params, authCode, outTradeNo, totalAmount, storeId,
 					builder.toJsonString(), result.getTradeStatus().ordinal(), t1, t2);
-		switch (result.getTradeStatus()) {
-		case SUCCESS:
-			log.info("支付宝支付成功!");					
-			return FunctionRet.buildOpSuccessXml(outTradeNo);
-		case FAILED:
-			log.error("支付宝支付失败!!!");
-			return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE1);
-		case UNKNOWN:
-			log.error("系统异常，订单状态未知!!!");
-			return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE2);
-		default:
-			log.error("不支持的交易状态，交易返回异常!!!");
-			return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE3);
+			switch (result.getTradeStatus()) {
+			case SUCCESS:
+				log.info("支付宝支付成功!");
+				return FunctionRet.buildOpSuccessXml(outTradeNo);
+			case FAILED:
+				log.error("支付宝支付失败!!!");
+				return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE1);
+			case UNKNOWN:
+				log.error("系统异常，订单状态未知!!!");
+				return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE2);
+			default:
+				log.error("不支持的交易状态，交易返回异常!!!");
+				return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE3);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return FunctionRet.buildFailXml(ex.getMessage(), C.FAIL_CODE4);
 		}
 	}
-
 
 	public String trade_pay(String param) {
-		return do_tray_pay( param);
+		return do_tray_pay(param);
 	}
 
-	private String do_trade_query(String outTrade) {
+	private String do_trade_query(String outTrade, String sqbm) {
 		Long t1 = System.currentTimeMillis();
-		AlipayF2FQueryResult result = tradeService.queryTradeResult(outTrade);
-		
-		AlipayTradeQueryResponse response = result.getResponse();
-		dumpResponse(response);
-			
-		dbAlipayIntf.saveTradeQuery(outTrade,result.getTradeStatus().ordinal(), response!=null ? response.toString():"", t1, System.currentTimeMillis());
-		switch (result.getTradeStatus()) {
-		case SUCCESS:
-			log.info("查询返回该订单支付成功: )");			
-			log.info(response.getTradeStatus());
-			if (Utils.isListNotEmpty(response.getFundBillList())) {
-				for (TradeFundBill bill : response.getFundBillList()) {
-					log.info(bill.getFundChannel() + ":" + bill.getAmount());
-				}
-			}
-			return FunctionRet.buildOpSuccessXml(outTrade);
-		case FAILED:
-			log.error("查询返回该订单支付失败或被关闭!!!");
-			return FunctionRet.buildFailXml(outTrade, C.FAIL_CODE1);
+		try {
+			AlipayF2FQueryResult result = tradeService.queryTradeResult(outTrade);
 
-		case UNKNOWN:
-			log.error("系统异常，订单支付状态未知!!!");
-			return FunctionRet.buildFailXml(outTrade, C.FAIL_CODE2);
-		default:
-			log.error("不支持的交易状态，交易返回异常!!!");
-			return FunctionRet.buildFailXml(outTrade, C.FAIL_CODE3);
+			AlipayTradeQueryResponse response = result.getResponse();
+			dumpResponse(response);
+
+			dbAlipayIntf.saveTradeQuery(outTrade, result.getTradeStatus().ordinal(),
+					response != null ? response.getBody() : "", t1, System.currentTimeMillis(), sqbm);
+			switch (result.getTradeStatus()) {
+			case SUCCESS:
+				log.info("查询返回该订单支付成功: )");
+				log.info(response.getTradeStatus());
+				if (Utils.isListNotEmpty(response.getFundBillList())) {
+					for (TradeFundBill bill : response.getFundBillList()) {
+						log.info(bill.getFundChannel() + ":" + bill.getAmount());
+					}
+				}
+				return FunctionRet.buildOpSuccessXml(outTrade);
+			case FAILED:
+				log.error("查询返回该订单支付失败或被关闭!!!");
+				return FunctionRet.buildFailXml(outTrade, C.FAIL_CODE1);
+
+			case UNKNOWN:
+				log.error("系统异常，订单支付状态未知!!!");
+				return FunctionRet.buildFailXml(outTrade, C.FAIL_CODE2);
+			default:
+				log.error("不支持的交易状态，交易返回异常!!!");
+				return FunctionRet.buildFailXml(outTrade, C.FAIL_CODE3);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return FunctionRet.buildFailXml(ex.getMessage(), C.FAIL_CODE4);
 		}
 	}
 
-
 	public String trade_query(String param) {
-		Map<String, Object> paramMap = ParamsUtil.toMap( param);
-		return do_trade_query( ConvertUtils.toString( paramMap.get("TRADENO")));
+		Map<String, Object> paramMap = ParamsUtil.toMap(param);
+		return do_trade_query(ConvertUtils.toString(paramMap.get("tradeno")), ConvertUtils.toString(paramMap.get("sqbm")));
 	}
 
-	private String do_trade_refund(String outTradeNo, String refundAmount,String refundReason, String storeId ){
+	private String do_trade_refund(String outTradeNo, String refundAmount, String refundReason, String storeId, String sqbm) {
 		// (必填) 外部订单号，需要退款交易的商户外部订单号
-        // (必填) 退款金额，该金额必须小于等于订单的支付金额，单位为元
-        // (可选，需要支持重复退货时必填) 商户退款请求号，相同支付宝交易号下的不同退款请求号对应同一笔交易的不同退款申请，
-        // 对于相同支付宝交易号下多笔相同商户退款请求号的退款交易，支付宝只会进行一次退款
-        String outRequestNo = "";
-        // (必填) 退款原因，可以说明用户退款原因，方便为商家后台提供统计
-        // (必填) 商户门店编号，退款情况下可以为商家后台提供退款权限判定和统计等作用，详询支付宝技术支持
-        Long t1 = System.currentTimeMillis();
-        AlipayTradeRefundContentBuilder builder = new AlipayTradeRefundContentBuilder()
-                .setOutTradeNo(outTradeNo)
-                .setRefundAmount(refundAmount)
-                .setRefundReason(refundReason)
-                .setOutRequestNo(outRequestNo)
-                .setStoreId(storeId);
+		// (必填) 退款金额，该金额必须小于等于订单的支付金额，单位为元
+		// (可选，需要支持重复退货时必填) 商户退款请求号，相同支付宝交易号下的不同退款请求号对应同一笔交易的不同退款申请，
+		// 对于相同支付宝交易号下多笔相同商户退款请求号的退款交易，支付宝只会进行一次退款
+		String outRequestNo = "";
+		// (必填) 退款原因，可以说明用户退款原因，方便为商家后台提供统计
+		// (必填) 商户门店编号，退款情况下可以为商家后台提供退款权限判定和统计等作用，详询支付宝技术支持
+		Long t1 = System.currentTimeMillis();
+		try {
+			AlipayTradeRefundContentBuilder builder = new AlipayTradeRefundContentBuilder().setOutTradeNo(outTradeNo)
+					.setRefundAmount(refundAmount).setRefundReason(refundReason).setOutRequestNo(outRequestNo)
+					.setStoreId(storeId);
 
-        AlipayF2FRefundResult result = tradeService.tradeRefund(builder);
-        log.info("订单系统中唯一订单号"+ outTradeNo);
-		log.info("订单退款金额"+ refundAmount);
-		log.info("商户号"+storeId);
-        dbAlipayIntf.saveTradeRefund(outTradeNo, refundAmount, refundReason, storeId,result.toString(), result.getTradeStatus().ordinal(), t1, System.currentTimeMillis());
-        switch (result.getTradeStatus()) {
-            case SUCCESS:
-                log.info("支付宝退款成功: )");
-                return FunctionRet.buildOpSuccessXml( outTradeNo);
-            case FAILED:
-                log.error("支付宝退款失败!!!");
-                return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE1);
-            case UNKNOWN:
-                log.error("系统异常，订单退款状态未知!!!");
-                return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE2);
-            default:
-                log.error("不支持的交易状态，交易返回异常!!!");
-                return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE3);
-        }
+			AlipayF2FRefundResult result = tradeService.tradeRefund(builder);
+			
+			log.info("订单系统中唯一订单号" + outTradeNo);
+			log.info("订单退款金额" + refundAmount);
+			log.info("商户号" + storeId);
+			dbAlipayIntf.saveTradeRefund(outTradeNo, refundAmount, refundReason, storeId, result.getResponse().getBody(), result
+					.getTradeStatus().ordinal(), t1, System.currentTimeMillis(), sqbm);
+			switch (result.getTradeStatus()) {
+			case SUCCESS:
+				log.info("支付宝退款成功: )");
+				return FunctionRet.buildOpSuccessXml(outTradeNo);
+			case FAILED:
+				log.error("支付宝退款失败!!!");
+				return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE1);
+			case UNKNOWN:
+				log.error("系统异常，订单退款状态未知!!!");
+				return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE2);
+			default:
+				log.error("不支持的交易状态，交易返回异常!!!");
+				return FunctionRet.buildFailXml(outTradeNo, C.FAIL_CODE3);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return FunctionRet.buildFailXml(ex.getMessage(), C.FAIL_CODE4);
+		}
 	}
-	
 
 	public String trade_refund(String param) {
-		Map<String, Object> paramMap = ParamsUtil.toMap( param);
-		String outTradeNo = ConvertUtils.toString( paramMap.get("TRADENO"));
-		String refundAmount = ConvertUtils.toString( paramMap.get("REFUNDAMOUNT"));
-		String refundReason = ConvertUtils.toString( paramMap.get("REFUNDREASON"));
-		String storeId = ConvertUtils.toString( paramMap.get("STOREID"));
-		return do_trade_refund(outTradeNo, refundAmount, refundReason, storeId);
+		Map<String, Object> paramMap = ParamsUtil.toMap(param);
+		String sqbm = ConvertUtils.toString(paramMap.get("sqbm"));
+		String outTradeNo = ConvertUtils.toString(paramMap.get("tradeno"));
+		String refundAmount = ConvertUtils.toString(paramMap.get("refundamount"));
+		String refundReason = ConvertUtils.toString(paramMap.get("refundreason"));
+		String storeId = ConvertUtils.toString(paramMap.get("storeid"));
+		return do_trade_refund(outTradeNo, refundAmount, refundReason, storeId, sqbm);
 	}
 
 }

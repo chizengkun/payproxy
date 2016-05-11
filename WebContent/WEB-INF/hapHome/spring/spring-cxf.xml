@@ -24,14 +24,18 @@
 		</property>
 	</bean>
 	
-	<bean id="dbAlipayIntf" class="com.yonyou.proxy.service.DbAlipayImpl"/>
-	<bean id="nsAlipayPay" class="com.yonyou.proxy.alipay.trade.NsAlipayPay">
-	   <property name="dbAlipayIntf" ref="dbAlipayIntf"/>
-	</bean>	 
+	<bean id="dbAlipayIntf" class="com.yonyou.proxy.service.DbAlipayImpl"/>	
 	
 	<bean id="readSoapHeader" class="com.yonyou.ws.interceptors.ReadSoapHeader"/>
 		
-	<bean id="proxyFactory" class="com.yonyou.proxy.alipay.factory.AlipayProxyFactoryImpl"/>
+	<bean id="proxyFactory" class="com.yonyou.proxy.alipay.factory.AlipayProxyFactoryImpl">
+		<property name="skMap">
+		  <map>
+		    <entry key="44030510" value="1"/>
+		    <entry key="4403041107" value="1"/>
+		  </map>
+		</property>
+	</bean>
 	
 	<bean id="proxyServiceBean" class="com.yonyou.proxy.alipay.services.AlipayProxyServiceImpl" 
 			p:proxyFactory-ref="proxyFactory"/>	 

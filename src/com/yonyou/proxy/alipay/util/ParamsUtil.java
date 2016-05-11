@@ -36,7 +36,7 @@ public class ParamsUtil {
 			return paraMap;
 		try {
 			Document document = Jsoup.parse(new ByteArrayInputStream(xml.trim().getBytes()), "GBK", "", new Parser(new XmlTreeBuilder()));
-			Element root = document.select("params").get(0);
+			Element root = document.select(C.DOCUMENT_ROOT).get(0);
 			Elements els = root.children();
 			for(Element element : els) {
 				if(element.children().size() > 0) {

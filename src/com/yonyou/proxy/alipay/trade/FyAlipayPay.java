@@ -1,6 +1,7 @@
 package com.yonyou.proxy.alipay.trade;
 
 import com.alipay.demo.trade.config.Configs;
+import com.yonyou.proxy.service.DbAlipayIntf;
 
 public class FyAlipayPay extends AlipayBase {
 
@@ -11,6 +12,9 @@ public class FyAlipayPay extends AlipayBase {
         Configs.init("zfb-fy.properties");
 	}
 	
+	public FyAlipayPay(DbAlipayIntf dbAlipayIntf){
+		super(dbAlipayIntf);
+	}
 	
 	@Override
 	protected String getProviderId() {

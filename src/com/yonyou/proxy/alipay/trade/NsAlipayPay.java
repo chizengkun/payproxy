@@ -4,6 +4,7 @@ import com.alipay.demo.trade.config.Configs;
 import com.alipay.demo.trade.service.impl.AlipayMonitorServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeWithHBServiceImpl;
+import com.yonyou.proxy.service.DbAlipayIntf;
 
 public class NsAlipayPay extends AlipayBase{
 
@@ -15,7 +16,9 @@ public class NsAlipayPay extends AlipayBase{
         Configs.init("zfb-ns.properties");
 	}
     	
-		
+	public NsAlipayPay(DbAlipayIntf dbAlipayIntf){
+		super(dbAlipayIntf);
+	}
 
 	@Override
 	protected String getProviderId() {

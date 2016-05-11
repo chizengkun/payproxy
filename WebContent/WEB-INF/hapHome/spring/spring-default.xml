@@ -81,14 +81,15 @@
 	</tx:advice>
 
 	<aop:config>
-		<aop:pointcut expression="execution(* com.yonyou.proxy.services..*.*(..))"
+		<aop:pointcut expression="execution(* com.yonyou.proxy.service..*.*(..))"
 			id="hisServiceMethods" />
 
 		<!-- HIS -->
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="hisServiceMethods" />
-
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="hisServiceMethods" order="1" />		
 	</aop:config>
-
+	
+	<bean id="CodeBS" class="com.ufida.hap.service.CodeBSImpl" />
+	<bean id="CacheBS" class="com.ufida.hap.service.CacheBSImpl" />
 	
 	<bean id="hibernateDaoSupport" class="com.ufida.hap.hibernate.HibernateDaoSupportImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
@@ -100,5 +101,8 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
+	
+	<bean id="sysLoader" class="com.yonyou.proxy.alipay.factory.HLoader">
+	</bean>
 
 </beans>

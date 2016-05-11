@@ -21,13 +21,38 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.ufida.hap.util.ParamUtil;
 import com.yonyou.encrypt.utils.AESUtils;
+import com.yonyou.proxy.alipay.util.ParamsUtil;
 
 
 public class Test {
 	
+	private static void doaction(String[] ss){
+		ss[1] = "²âÊÔ´«Öµ!";
+	}
 	public static void main(String args[]){
-		SimpleDateFormat sd = new SimpleDateFormat("yyyyMMdd");
+		String[] ss = "this ,a ,test".split(",");
+		
+		System.out.println( ss);
+		doaction(ss);
+		
+		for (String s: ss)
+			System.out.println(s);
+		/*Document doc = DocumentHelper.createDocument();
+		Element root= doc.addElement("params");
+		root.addElement("SQBM").setText("4403");
+		root.addElement("SFID").setText( "222344");
+		root.addElement("USERID").setText( "456");
+		root.addElement("STOREID").setText("S10");
+		root.addElement("ALIPAYKEY").setText("3345666");
+		root.addElement("AMOUNT").setText("18.7");
+		root.addElement("DISCOUNTABLE").setText("0.0");
+		System.out.println( doc.asXML());
+		
+		Map<String, Object> o= ParamsUtil.toMap(doc.asXML());
+		System.out.println( o.toString());*/
+		/*SimpleDateFormat sd = new SimpleDateFormat("yyyyMMdd");
 		String mkey = sd.format( new Date());
 		try {
 			String words = AESUtils.encrypt(String.format("%s@#%s", "yonyou", "1.0"), mkey, 16);
@@ -47,7 +72,7 @@ public class Test {
 		} catch (BadPaddingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		/*System.out.println(System.getProperty("file.encoding"));
         String content = "yonyou";
         String password = "BryanAndCelia";
