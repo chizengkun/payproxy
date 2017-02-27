@@ -1,6 +1,6 @@
 package com.yonyou.proxy.alipay.trade;
 
-public interface IYonyouPay {
+public interface IAliPayProxy {
 
 		String trade_pay(   String param);
 		String trade_query( String param);

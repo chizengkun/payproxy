@@ -40,28 +40,33 @@ import com.yonyou.proxy.alipay.util.FunctionRet;
 import com.yonyou.proxy.alipay.util.ParamsUtil;
 import com.yonyou.proxy.service.DbAlipayIntf;
 
-public abstract class AlipayBase implements IYonyouPay {
+public abstract class AlipayBase implements IAliPayProxy {
 	protected static Log log = LogFactory.getLog(AlipayBase.class);
 	// 支付宝当面付2.0服务
-	protected static AlipayTradeService tradeService;
+	protected  AlipayTradeService tradeService;
 
 	// 支付宝当面付2.0服务（集成了交易保障接口逻辑）
-	protected static AlipayTradeService tradeWithHBService;
+	protected  AlipayTradeService tradeWithHBService;
 
 	// 支付宝交易保障接口服务
-	protected static AlipayMonitorService monitorService;
+	protected  AlipayMonitorService monitorService;
 
 	protected abstract String getProviderId();
 
 	private DbAlipayIntf dbAlipayIntf;
 
-	public AlipayBase(DbAlipayIntf dbAlipayIntf) {
-		this();
+	public AlipayBase(DbAlipayIntf dbAlipayIntf) {		
 		this.dbAlipayIntf = dbAlipayIntf;
+		
+		loadConfigs();
+		init();
 	}
 
-	public AlipayBase() {
+	
+	protected abstract void  loadConfigs();		
 
+	//根据子类的配置得到对应的初始化变量
+	protected void  init() {
 		/**
 		 * 使用Configs提供的默认参数 AlipayTradeService可以使用单例或者为静态成员对象，不需要反复new
 		 */

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.ufida.hap.context.util.HapSpringContextUtils;
 import com.yonyou.proxy.alipay.trade.FyAlipayPay;
-import com.yonyou.proxy.alipay.trade.IYonyouPay;
+import com.yonyou.proxy.alipay.trade.IAliPayProxy;
 import com.yonyou.proxy.alipay.trade.NsAlipayPay;
 import com.yonyou.proxy.alipay.trade.SkAlipayPay;
 import com.yonyou.proxy.alipay.trade.XlAlipayPay;
@@ -16,7 +16,7 @@ import com.yonyou.proxy.service.DbAlipayIntf;
 
 public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 
-	private Map<Integer, IYonyouPay> alipayMap = new HashMap<Integer, IYonyouPay>();
+	private Map<Integer, IAliPayProxy> alipayMap = new HashMap<Integer, IAliPayProxy>();
 
 	private Map<String, Integer> skMap = new HashMap<String, Integer>();
 
@@ -28,8 +28,8 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 		this.skMap = skMap;
 	}
 
-	private IYonyouPay getPayObject(Integer indx) {
-		IYonyouPay p = null;
+	private IAliPayProxy getPayObject(Integer indx) {
+		IAliPayProxy p = null;
 		DbAlipayIntf dbintf = HapSpringContextUtils.getBean( DbAlipayIntf.class);
 		switch (indx) {
 		case 1:
@@ -49,17 +49,18 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 		return p;
 	}
 
-	private IYonyouPay getPayImplement(String sqbm) {
+	private IAliPayProxy getPayImplement(String sqbm) {
+		//根据社区的配置读取到对应的处理类
 		if (skMap.containsKey(sqbm)) {
 			Integer k = skMap.get(sqbm);
 			if (alipayMap.containsKey(k)) {
-				IYonyouPay pay = alipayMap.get(k);
+				IAliPayProxy pay = alipayMap.get(k);
 				if (pay == null) {
-					IYonyouPay yp = getPayObject(k);
+					IAliPayProxy yp = getPayObject(k);
 					alipayMap.put(k, yp);
 				}
 			}else{
-				IYonyouPay yp = getPayObject(k);
+				IAliPayProxy yp = getPayObject(k);
 				alipayMap.put(k, yp);
 			}
 			return alipayMap.get(k);
@@ -71,7 +72,7 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 	public String trade_pay(String param) {
 		Map<String,Object> m = ParamsUtil.toMap(param);
 		String sqbm= m.get("sqbm").toString();
-		IYonyouPay pay = getPayImplement(sqbm);
+		IAliPayProxy pay = getPayImplement(sqbm);
 		if (pay != null) {
 			return pay.trade_pay(param);
 		} else {
@@ -83,7 +84,7 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 	public String trade_query(String param) {
 		Map<String,Object> m = ParamsUtil.toMap(param);
 		String sqbm= m.get("sqbm").toString();
-		IYonyouPay pay = getPayImplement(sqbm);
+		IAliPayProxy pay = getPayImplement(sqbm);
 		if (pay != null) {
 			return pay.trade_query(param);
 		} else {
@@ -95,7 +96,7 @@ public class AlipayProxyFactoryImpl implements AlipayProxyFactory {
 	public String trade_refund(String param) {
 		Map<String,Object> m = ParamsUtil.toMap(param);
 		String sqbm= m.get("sqbm").toString();
-		IYonyouPay pay = getPayImplement(sqbm);
+		IAliPayProxy pay = getPayImplement(sqbm);
 		if (pay != null) {
 			return pay.trade_refund(param);
 		} else {
